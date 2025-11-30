@@ -212,14 +212,14 @@
 
         // 第一栏：统计卡片数据
         const statsData = [
-            { label: '今日注册人数', value: 1286, sub: '较昨日 +12.3%', highlight: true },
-            { label: '累计注册人数', value: 158432, sub: '' },
-            { label: '今日新增充值', value: 89520, sub: '较昨日 +8.7%', highlight: true },
-            { label: '累计充值人数', value: 42156, sub: '' },
-            { label: '今日新增提币', value: 23450, sub: '较昨日 -3.2%' },
-            { label: '累计提币人数', value: 18923, sub: '' },
-            { label: '今日实名人数', value: 892, sub: '较昨日 +15.6%', highlight: true },
-            { label: '累计实名人数', value: 134521, sub: '' }
+            { label: '今日注册人数', value: 1286, highlight: true },
+            { label: '累计注册人数', value: 158432 },
+            { label: '今日新增充值', value: 89520, highlight: true },
+            { label: '累计充值人数', value: 42156 },
+            { label: '今日新增提币', value: 23450 },
+            { label: '累计提币人数', value: 18923 },
+            { label: '今日实名人数', value: 892, highlight: true },
+            { label: '累计实名人数', value: 134521 }
         ];
 
         // 时间轴数据（最近7天）
@@ -292,7 +292,6 @@
                 <div class="stat-card ${item.highlight ? 'highlight' : ''}">
                     <div class="label">${item.label}</div>
                     <div class="value">${item.value.toLocaleString()}</div>
-                    ${item.sub ? `<div class="sub-value">${item.sub}</div>` : ''}
                 </div>
             `).join('');
         }
