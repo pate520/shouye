@@ -238,12 +238,12 @@
         const products = ['理财包A', '理财包B', '理财包C', '理财包D'];
         const colors = ['#4f6ef7', '#22c55e', '#f59e0b', '#8b5cf6'];
 
-        // 当前参与金额（实时快照，千元）
+        // 当前参与金额（实时快照，USDT）
         const currentAmountData = [
-            { name: '理财包A', value: 3250 },
-            { name: '理财包B', value: 1980 },
-            { name: '理财包C', value: 1290 },
-            { name: '理财包D', value: 750 }
+            { name: '理财包A', value: 3250000 },
+            { name: '理财包B', value: 1980000 },
+            { name: '理财包C', value: 1290000 },
+            { name: '理财包D', value: 750000 }
         ];
 
         // 4个理财包的人数数据
@@ -316,7 +316,7 @@
             const option = {
                 tooltip: {
                     trigger: 'item',
-                    formatter: '{b}: {c}千元 ({d}%)'
+                    formatter: '{b}: {c} USDT ({d}%)'
                 },
                 legend: {
                     orient: 'vertical',
@@ -362,7 +362,7 @@
                     ${currentAmountData.map(item => `
                         <tr>
                             <td class="product-name">${item.name}</td>
-                            <td class="amount">¥${item.value.toLocaleString()}千元</td>
+                            <td class="amount">${item.value.toLocaleString()} USDT</td>
                             <td>${(item.value / total * 100).toFixed(1)}%</td>
                         </tr>
                     `).join('')}
