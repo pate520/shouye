@@ -170,6 +170,18 @@
         <!-- 第二栏：理财包图表 -->
         <div class="section-title" style="margin-top:8px;">📦 理财包数据分析</div>
 
+        <!-- 当前参与金额：饼图 + 表格 -->
+        <div class="row">
+            <div class="card card-half">
+                <div class="card-title">当前参与金额分布</div>
+                <div class="chart-container" id="currentPieChart"></div>
+            </div>
+            <div class="card card-half">
+                <div class="card-title">当前参与金额统计</div>
+                <table class="data-table" id="currentTable"></table>
+            </div>
+        </div>
+
         <!-- 图表1：人数对比 -->
         <div class="card" style="margin-bottom:24px;">
             <div class="card-title">人数趋势对比</div>
@@ -181,7 +193,6 @@
             <div class="card-title">金额趋势</div>
             <div class="tab-bar" id="amountTabs">
                 <div class="tab-btn active" data-type="accumulated">累计参与</div>
-                <div class="tab-btn" data-type="current">当前参与</div>
                 <div class="tab-btn" data-type="profit">累计收益</div>
                 <div class="tab-btn" data-type="redeemed">已赎回</div>
             </div>
@@ -227,6 +238,14 @@
         const products = ['理财包A', '理财包B', '理财包C', '理财包D'];
         const colors = ['#4f6ef7', '#22c55e', '#f59e0b', '#8b5cf6'];
 
+        // 当前参与金额（实时快照，千元）
+        const currentAmountData = [
+            { name: '理财包A', value: 3250 },
+            { name: '理财包B', value: 1980 },
+            { name: '理财包C', value: 1290 },
+            { name: '理财包D', value: 750 }
+        ];
+
         // 4个理财包的人数数据
         const peopleData = {
             newUsers: [
@@ -261,12 +280,6 @@
                 [860, 890, 920, 950, 970, 980, 1020]          // 理财包D
             ],
             // 当前参与金额
-            current: [
-                [2850, 2920, 3010, 3080, 3120, 3180, 3250],   // 理财包A
-                [1720, 1780, 1830, 1880, 1900, 1920, 1980],   // 理财包B
-                [1080, 1120, 1180, 1210, 1230, 1250, 1290],   // 理财包C
-                [620, 650, 680, 700, 710, 720, 750]           // 理财包D
-            ],
             // 累计收益金额
             profit: [
                 [380, 400, 410, 430, 440, 450, 470],          // 理财包A
@@ -294,6 +307,67 @@
                     <div class="value">${item.value.toLocaleString()}</div>
                 </div>
             `).join('');
+        }
+
+        // 渲染当前参与金额饼图
+        function renderCurrentPieChart() {
+            const chart = echarts.init(document.getElementById('currentPieChart'));
+            const total = currentAmountData.reduce((sum, item) => sum + item.value, 0);
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}千元 ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: '5%',
+                    top: 'center',
+                    itemGap: 20
+                },
+                color: colors,
+                series: [{
+                    type: 'pie',
+                    radius: ['45%', '70%'],
+                    center: ['35%', '50%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 8,
+                        borderColor: '#fff',
+                        borderWidth: 2
+                    },
+                    label: { show: false },
+                    emphasis: {
+                        label: { show: true, fontSize: 14, fontWeight: 'bold' }
+                    },
+                    data: currentAmountData
+                }]
+            };
+            chart.setOption(option);
+            return chart;
+        }
+
+        // 渲染当前参与金额表格
+        function renderCurrentTable() {
+            const total = currentAmountData.reduce((sum, item) => sum + item.value, 0);
+            const table = document.getElementById('currentTable');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>理财包</th>
+                        <th>当前参与金额</th>
+                        <th>占比</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${currentAmountData.map(item => `
+                        <tr>
+                            <td class="product-name">${item.name}</td>
+                            <td class="amount">¥${item.value.toLocaleString()}千元</td>
+                            <td>${(item.value / total * 100).toFixed(1)}%</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            `;
         }
 
         // 图表1：人数趋势对比（4个理财包 × 新增+购买）
@@ -560,7 +634,8 @@
         // ==================== 初始化 ====================
         document.addEventListener('DOMContentLoaded', function() {
             renderStats();
-            const charts = [renderPeopleChart(), renderAmountChart(), renderDualAxisChart(), renderSingleAxisChart()];
+            renderCurrentTable();
+            const charts = [renderCurrentPieChart(), renderPeopleChart(), renderAmountChart(), renderDualAxisChart(), renderSingleAxisChart()];
 
             // 响应式
             window.addEventListener('resize', () => {
