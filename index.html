@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台首页 - 数据概览</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            padding: 24px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #1a1a1a;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+        /* 第一栏：统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .stat-card .label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .stat-card .sub-value {
+            font-size: 13px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .stat-card.highlight .value {
+            color: #4f6ef7;
+        }
+        /* 第二栏：环形图 + 表格 */
+        .row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .card-half {
+            flex: 1;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 12px 8px;
+            font-size: 13px;
+            color: #999;
+            font-weight: 500;
+            border-bottom: 1px solid #eee;
+        }
+        .data-table td {
+            padding: 16px 8px;
+            font-size: 14px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .data-table .product-name {
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .data-table .amount {
+            font-weight: 500;
+        }
+        .data-table .trend-up {
+            color: #22c55e;
+            font-weight: 600;
+        }
+        .data-table .trend-down {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        /* 第三栏：趋势图表 */
+        .chart-row {
+            display: flex;
+            gap: 24px;
+        }
+        .chart-card {
+            flex: 1;
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .chart-lg {
+            height: 350px;
+        }
+        /* Tab样式 */
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 16px;
+        }
+        .tab-btn {
+            padding: 8px 20px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .tab-btn:first-child { border-radius: 6px 0 0 6px; }
+        .tab-btn:last-child { border-radius: 0 6px 6px 0; }
+        .tab-btn:not(:first-child) { border-left: none; }
+        .tab-btn:hover { background: #e8e8e8; }
+        .tab-btn.active { background: #4f6ef7; color: #fff; border-color: #4f6ef7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 数据概览</h1>
+
+        <!-- 第一栏：统计卡片 -->
+        <div class="stats-grid" id="statsGrid">
+            <!-- 由JS动态生成 -->
+        </div>
+
+        <!-- 第二栏：理财包图表 -->
+        <div class="section-title" style="margin-top:8px;">📦 理财包数据分析</div>
+
+        <!-- 图表1：人数对比 -->
+        <div class="card" style="margin-bottom:24px;">
+            <div class="card-title">人数趋势对比</div>
+            <div class="chart-lg" id="peopleChart"></div>
+        </div>
+
+        <!-- 图表2：金额趋势 -->
+        <div class="card" style="margin-bottom:24px;">
+            <div class="card-title">金额趋势</div>
+            <div class="tab-bar" id="amountTabs">
+                <div class="tab-btn active" data-type="accumulated">累计参与</div>
+                <div class="tab-btn" data-type="current">当前参与</div>
+                <div class="tab-btn" data-type="profit">累计收益</div>
+                <div class="tab-btn" data-type="redeemed">已赎回</div>
+            </div>
+            <div class="chart-lg" id="amountChart"></div>
+        </div>
+
+        <!-- 图表3：双Y轴 - 人数与入金 -->
+        <div class="card" style="margin-bottom:24px;">
+            <div class="card-title">新增人数 vs 新增入金（方案 A：双Y轴对比）</div>
+            <div class="chart-lg" id="dualAxisChart"></div>
+        </div>
+
+        <!-- 图表4：单Y轴 - Tab切换理财包 -->
+        <div class="card">
+            <div class="card-title">新增人数 vs 新增入金（方案 B：单Y轴 - 按理财包查看，金额单位：千元）</div>
+            <div class="tab-bar" id="singleAxisTabs">
+                <div class="tab-btn active" data-idx="0">理财包A</div>
+                <div class="tab-btn" data-idx="1">理财包B</div>
+                <div class="tab-btn" data-idx="2">理财包C</div>
+                <div class="tab-btn" data-idx="3">理财包D</div>
+            </div>
+            <div class="chart-lg" id="singleAxisChart"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 模拟数据 ====================
+
+        // 第一栏：统计卡片数据
+        const statsData = [
+            { label: '今日注册人数', value: 1286, sub: '较昨日 +12.3%', highlight: true },
+            { label: '累计注册人数', value: 158432, sub: '' },
+            { label: '今日新增充值', value: 89520, sub: '较昨日 +8.7%', highlight: true },
+            { label: '累计充值人数', value: 42156, sub: '' },
+            { label: '今日新增提币', value: 23450, sub: '较昨日 -3.2%' },
+            { label: '累计提币人数', value: 18923, sub: '' },
+            { label: '今日实名人数', value: 892, sub: '较昨日 +15.6%', highlight: true },
+            { label: '累计实名人数', value: 134521, sub: '' }
+        ];
+
+        // 时间轴数据（最近7天）
+        const days = ['11-24', '11-25', '11-26', '11-27', '11-28', '11-29', '11-30'];
+        const products = ['理财包A', '理财包B', '理财包C', '理财包D'];
+        const colors = ['#4f6ef7', '#22c55e', '#f59e0b', '#8b5cf6'];
+
+        // 4个理财包的人数数据
+        const peopleData = {
+            newUsers: [
+                [856, 923, 1045, 987, 1123, 1198, 1286],   // 理财包A
+                [623, 678, 712, 689, 756, 801, 834],       // 理财包B
+                [412, 445, 467, 423, 489, 512, 534],       // 理财包C
+                [234, 267, 289, 256, 312, 334, 356]        // 理财包D
+            ],
+            buyUsers: [
+                [234, 267, 312, 289, 345, 378, 412],       // 理财包A
+                [178, 195, 223, 201, 245, 267, 289],       // 理财包B
+                [123, 134, 156, 142, 167, 178, 189],       // 理财包C
+                [78, 89, 98, 87, 112, 123, 134]            // 理财包D
+            ]
+        };
+
+        // 4个理财包的入金数据（每日，千元）
+        const depositData = [
+            [125, 142, 158, 136, 167, 182, 195],   // 理财包A
+            [82, 91, 103, 88, 112, 124, 131],      // 理财包B
+            [56, 62, 71, 59, 78, 85, 92],          // 理财包C
+            [32, 38, 42, 35, 46, 51, 58]           // 理财包D
+        ];
+
+        // 金额趋势数据（4个理财包 × 4个指标 × 7天，单位：千元）
+        const amountTrend = {
+            // 累计参与金额
+            accumulated: [
+                [3980, 4120, 4250, 4380, 4450, 4520, 4680],   // 理财包A
+                [2560, 2640, 2710, 2780, 2830, 2890, 2980],   // 理财包B
+                [1380, 1420, 1470, 1510, 1540, 1560, 1620],   // 理财包C
+                [860, 890, 920, 950, 970, 980, 1020]          // 理财包D
+            ],
+            // 当前参与金额
+            current: [
+                [2850, 2920, 3010, 3080, 3120, 3180, 3250],   // 理财包A
+                [1720, 1780, 1830, 1880, 1900, 1920, 1980],   // 理财包B
+                [1080, 1120, 1180, 1210, 1230, 1250, 1290],   // 理财包C
+                [620, 650, 680, 700, 710, 720, 750]           // 理财包D
+            ],
+            // 累计收益金额
+            profit: [
+                [380, 400, 410, 430, 440, 450, 470],          // 理财包A
+                [190, 200, 210, 220, 220, 230, 240],          // 理财包B
+                [60, 65, 70, 72, 75, 78, 82],                 // 理财包C
+                [120, 130, 140, 145, 150, 156, 162]           // 理财包D
+            ],
+            // 已赎回金额
+            redeemed: [
+                [1130, 1200, 1240, 1300, 1330, 1340, 1430],   // 理财包A
+                [840, 860, 880, 900, 930, 970, 1000],         // 理财包B
+                [300, 300, 290, 300, 310, 310, 330],          // 理财包C
+                [240, 240, 240, 250, 260, 260, 270]           // 理财包D
+            ]
+        };
+
+        // ==================== 渲染函数 ====================
+
+        // 渲染统计卡片
+        function renderStats() {
+            const grid = document.getElementById('statsGrid');
+            grid.innerHTML = statsData.map(item => `
+                <div class="stat-card ${item.highlight ? 'highlight' : ''}">
+                    <div class="label">${item.label}</div>
+                    <div class="value">${item.value.toLocaleString()}</div>
+                    ${item.sub ? `<div class="sub-value">${item.sub}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // 图表1：人数趋势对比（4个理财包 × 新增+购买）
+        function renderPeopleChart() {
+            const chart = echarts.init(document.getElementById('peopleChart'));
+            const option = {
+                tooltip: { trigger: 'axis' },
+                legend: {
+                    data: products.flatMap(p => [p + '-新增', p + '-购买']),
+                    top: 0,
+                    textStyle: { fontSize: 11 }
+                },
+                grid: { left: '3%', right: '4%', bottom: '3%', top: 50, containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: days,
+                    axisLine: { lineStyle: { color: '#ddd' } },
+                    axisLabel: { color: '#666' }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '人数',
+                    splitLine: { lineStyle: { color: '#f0f0f0' } }
+                },
+                series: [
+                    ...products.map((p, i) => ({
+                        name: p + '-新增',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 6,
+                        lineStyle: { width: 2, color: colors[i] },
+                        itemStyle: { color: colors[i] },
+                        data: peopleData.newUsers[i]
+                    })),
+                    ...products.map((p, i) => ({
+                        name: p + '-购买',
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'diamond',
+                        symbolSize: 6,
+                        lineStyle: { width: 2, type: 'dashed', color: colors[i] },
+                        itemStyle: { color: colors[i] },
+                        data: peopleData.buyUsers[i]
+                    }))
+                ]
+            };
+            chart.setOption(option);
+            return chart;
+        }
+
+        // 图表2：金额趋势（4个理财包，Tab切换指标）
+        function renderAmountChart() {
+            const chart = echarts.init(document.getElementById('amountChart'));
+            const titles = {
+                accumulated: '累计参与金额趋势',
+                current: '当前参与金额趋势',
+                profit: '累计收益金额趋势',
+                redeemed: '已赎回金额趋势'
+            };
+
+            const updateChart = (type) => {
+                const data = amountTrend[type];
+                chart.setOption({
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: params => params.map(p => `${p.marker} ${p.seriesName}: ${p.value}千元`).join('<br/>')
+                    },
+                    legend: { data: products, top: 0 },
+                    grid: { left: '3%', right: '4%', bottom: '3%', top: 40, containLabel: true },
+                    xAxis: {
+                        type: 'category',
+                        data: days,
+                        axisLine: { lineStyle: { color: '#ddd' } },
+                        axisLabel: { color: '#666' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '金额(千元)',
+                        splitLine: { lineStyle: { color: '#f0f0f0' } }
+                    },
+                    series: products.map((p, i) => ({
+                        name: p,
+                        type: 'line',
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 6,
+                        lineStyle: { width: 2, color: colors[i] },
+                        itemStyle: { color: colors[i] },
+                        areaStyle: { opacity: 0.1 },
+                        data: data[i]
+                    }))
+                });
+            };
+
+            // 初始显示累计参与
+            updateChart('accumulated');
+
+            // Tab切换事件
+            document.getElementById('amountTabs').addEventListener('click', e => {
+                if (e.target.classList.contains('tab-btn')) {
+                    document.querySelectorAll('#amountTabs .tab-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    updateChart(e.target.dataset.type);
+                }
+            });
+
+            return chart;
+        }
+
+        // 图表3：双Y轴 - 新增人数 vs 新增入金
+        function renderDualAxisChart() {
+            const chart = echarts.init(document.getElementById('dualAxisChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'cross' },
+                    formatter: params => {
+                        let result = params[0].axisValue + '<br/>';
+                        params.forEach(p => {
+                            const unit = p.seriesName.includes('入金') ? '千元' : '人';
+                            result += `${p.marker} ${p.seriesName}: ${p.value}${unit}<br/>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: products.flatMap(p => [p + '-新增人数', p + '-新增入金(千元)']),
+                    top: 0,
+                    textStyle: { fontSize: 11 }
+                },
+                grid: { left: '3%', right: '5%', bottom: '3%', top: 55, containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: days,
+                    axisLine: { lineStyle: { color: '#ddd' } },
+                    axisLabel: { color: '#666' }
+                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '人数',
+                        position: 'left',
+                        axisLine: { show: true, lineStyle: { color: '#4f6ef7' } },
+                        axisLabel: { color: '#666' },
+                        splitLine: { lineStyle: { color: '#f0f0f0' } }
+                    },
+                    {
+                        type: 'value',
+                        name: '入金(千元)',
+                        position: 'right',
+                        axisLine: { show: true, lineStyle: { color: '#22c55e' } },
+                        axisLabel: { color: '#666' },
+                        splitLine: { show: false }
+                    }
+                ],
+                series: [
+                    ...products.map((p, i) => ({
+                        name: p + '-新增人数',
+                        type: 'line',
+                        yAxisIndex: 0,
+                        smooth: true,
+                        symbol: 'circle',
+                        symbolSize: 6,
+                        lineStyle: { width: 2, color: colors[i] },
+                        itemStyle: { color: colors[i] },
+                        data: peopleData.newUsers[i]
+                    })),
+                    ...products.map((p, i) => ({
+                        name: p + '-新增入金(千元)',
+                        type: 'bar',
+                        yAxisIndex: 1,
+                        barWidth: '6%',
+                        itemStyle: { color: colors[i], opacity: 0.6 },
+                        data: depositData[i]
+                    }))
+                ]
+            };
+            chart.setOption(option);
+            return chart;
+        }
+
+        // 图表4：单Y轴 - Tab切换理财包（新增人数 + 新增入金千元）
+        function renderSingleAxisChart() {
+            const chart = echarts.init(document.getElementById('singleAxisChart'));
+
+            const updateChart = (idx) => {
+                chart.setOption({
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: params => {
+                            let result = params[0].axisValue + '<br/>';
+                            params.forEach(p => {
+                                const unit = p.seriesName.includes('入金') ? '千元' : '人';
+                                result += `${p.marker} ${p.seriesName}: ${p.value}${unit}<br/>`;
+                            });
+                            return result;
+                        }
+                    },
+                    legend: { data: ['新增人数', '新增入金(千元)'], top: 0 },
+                    grid: { left: '3%', right: '4%', bottom: '3%', top: 45, containLabel: true },
+                    xAxis: {
+                        type: 'category',
+                        data: days,
+                        axisLine: { lineStyle: { color: '#ddd' } },
+                        axisLabel: { color: '#666' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        splitLine: { lineStyle: { color: '#f0f0f0' } }
+                    },
+                    series: [
+                        {
+                            name: '新增人数',
+                            type: 'line',
+                            smooth: true,
+                            symbol: 'circle',
+                            symbolSize: 8,
+                            lineStyle: { width: 3, color: '#4f6ef7' },
+                            itemStyle: { color: '#4f6ef7' },
+                            areaStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: 'rgba(79,110,247,0.3)' },
+                                    { offset: 1, color: 'rgba(79,110,247,0.05)' }
+                                ])
+                            },
+                            data: peopleData.newUsers[idx]
+                        },
+                        {
+                            name: '新增入金(千元)',
+                            type: 'line',
+                            smooth: true,
+                            symbol: 'circle',
+                            symbolSize: 8,
+                            lineStyle: { width: 3, color: '#22c55e' },
+                            itemStyle: { color: '#22c55e' },
+                            areaStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: 'rgba(34,197,94,0.3)' },
+                                    { offset: 1, color: 'rgba(34,197,94,0.05)' }
+                                ])
+                            },
+                            data: depositData[idx]
+                        }
+                    ]
+                });
+            };
+
+            // 初始显示理财包A
+            updateChart(0);
+
+            // Tab切换事件
+            document.getElementById('singleAxisTabs').addEventListener('click', e => {
+                if (e.target.classList.contains('tab-btn')) {
+                    document.querySelectorAll('#singleAxisTabs .tab-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    updateChart(parseInt(e.target.dataset.idx));
+                }
+            });
+
+            return chart;
+        }
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            renderStats();
+            const charts = [renderPeopleChart(), renderAmountChart(), renderDualAxisChart(), renderSingleAxisChart()];
+
+            // 响应式
+            window.addEventListener('resize', () => {
+                charts.forEach(c => c.resize());
+            });
+        });
+    </script>
+</body>
+</html>
+
