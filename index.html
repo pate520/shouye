@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>后台首页 - 数据概览</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         * {
@@ -11,89 +13,155 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: #f5f7fa;
             color: #333;
             padding: 24px;
         }
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
         }
+
         h1 {
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 24px;
             color: #1a1a1a;
         }
+
         .section-title {
             font-size: 16px;
             font-weight: 600;
             margin-bottom: 16px;
             color: #1a1a1a;
         }
+
         /* 第一栏：统计卡片 */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
             margin-bottom: 24px;
         }
+
         .stat-card {
             background: #fff;
             border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+
+        .stat-row.vertical {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        /* 针对一行两个数据的样式 */
+        .stat-group {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .stat-group .stat-item {
+            text-align: left;
+        }
+
+        .stat-group .stat-item:last-child {
+            text-align: right;
+        }
+
         .stat-card .label {
-            font-size: 14px;
+            font-size: 13px;
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
+
         .stat-card .value {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
             color: #1a1a1a;
+            font-family: 'Roboto', sans-serif;
+            /* 优化数字显示 */
         }
+
         .stat-card .sub-value {
-            font-size: 13px;
+            font-size: 12px;
             color: #999;
-            margin-top: 4px;
+            margin-top: 2px;
         }
+
         .stat-card.highlight .value {
             color: #4f6ef7;
         }
+
+        .unit {
+            font-size: 12px;
+            color: #999;
+            font-weight: normal;
+            margin-left: 2px;
+        }
+
         /* 第二栏：环形图 + 表格 */
         .row {
             display: flex;
             gap: 24px;
             margin-bottom: 24px;
         }
+
         .card {
             background: #fff;
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
+
         .card-half {
             flex: 1;
         }
+
         .card-title {
             font-size: 16px;
             font-weight: 600;
             color: #1a1a1a;
             margin-bottom: 20px;
         }
+
         .chart-container {
             width: 100%;
             height: 300px;
         }
+
         /* 表格样式 */
         .data-table {
             width: 100%;
             border-collapse: collapse;
         }
+
         .data-table th {
             text-align: left;
             padding: 12px 8px;
@@ -102,47 +170,57 @@
             font-weight: 500;
             border-bottom: 1px solid #eee;
         }
+
         .data-table td {
             padding: 16px 8px;
             font-size: 14px;
             border-bottom: 1px solid #f5f5f5;
         }
+
         .data-table .product-name {
             font-weight: 600;
             color: #1a1a1a;
         }
+
         .data-table .amount {
             font-weight: 500;
         }
+
         .data-table .trend-up {
             color: #22c55e;
             font-weight: 600;
         }
+
         .data-table .trend-down {
             color: #ef4444;
             font-weight: 600;
         }
+
         /* 第三栏：趋势图表 */
         .chart-row {
             display: flex;
             gap: 24px;
         }
+
         .chart-card {
             flex: 1;
             background: #fff;
             border-radius: 12px;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         }
+
         .chart-lg {
             height: 350px;
         }
+
         /* Tab样式 */
         .tab-bar {
             display: flex;
             gap: 0;
             margin-bottom: 16px;
         }
+
         .tab-btn {
             padding: 8px 20px;
             background: #f5f5f5;
@@ -151,13 +229,31 @@
             font-size: 13px;
             transition: all 0.2s;
         }
-        .tab-btn:first-child { border-radius: 6px 0 0 6px; }
-        .tab-btn:last-child { border-radius: 0 6px 6px 0; }
-        .tab-btn:not(:first-child) { border-left: none; }
-        .tab-btn:hover { background: #e8e8e8; }
-        .tab-btn.active { background: #4f6ef7; color: #fff; border-color: #4f6ef7; }
+
+        .tab-btn:first-child {
+            border-radius: 6px 0 0 6px;
+        }
+
+        .tab-btn:last-child {
+            border-radius: 0 6px 6px 0;
+        }
+
+        .tab-btn:not(:first-child) {
+            border-left: none;
+        }
+
+        .tab-btn:hover {
+            background: #e8e8e8;
+        }
+
+        .tab-btn.active {
+            background: #4f6ef7;
+            color: #fff;
+            border-color: #4f6ef7;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>📊 数据概览</h1>
@@ -222,15 +318,87 @@
         // ==================== 模拟数据 ====================
 
         // 第一栏：统计卡片数据
+        // 格式化数字函数 (K, M, B)
+        function formatNumber(num) {
+            if (num === null || num === undefined) return '-';
+            const absNum = Math.abs(num);
+            if (absNum >= 1e9) {
+                return (num / 1e9).toFixed(2) + '<span class="unit">B</span>';
+            } else if (absNum >= 1e6) {
+                return (num / 1e6).toFixed(2) + '<span class="unit">M</span>';
+            } else if (absNum >= 1e3) {
+                // 如果是比较小的千位数，有时候不一定要K，但用户要求"数据量大按照K,B统计"，这里统一加上K
+                return (num / 1e3).toFixed(2) + '<span class="unit">K</span>';
+            }
+            return num.toLocaleString(); // 小于1000保持原样
+        }
+
+        // 第一栏：统计卡片数据 (分组结构)
         const statsData = [
-            { label: '今日注册人数', value: 1286, highlight: true },
-            { label: '累计注册人数', value: 158432 },
-            { label: '今日新增充值', value: 89520, highlight: true },
-            { label: '累计充值人数', value: 42156 },
-            { label: '今日新增提币', value: 23450 },
-            { label: '累计提币人数', value: 18923 },
-            { label: '今日实名人数', value: 892, highlight: true },
-            { label: '累计实名人数', value: 134521 }
+            // 1. 注册人数
+            {
+                items: [
+                    { label: '今日注册人数', value: 1286, highlight: true },
+                    { label: '累计注册人数', value: 158432 }
+                ]
+            },
+            // 2. 提币 (今日)
+            {
+                items: [
+                    { label: '今日提币人数', value: 50 },
+                    { label: '今日提币金额', value: 23450, isCurrency: true }
+                ]
+            },
+            // 3. 提币 (累计)
+            {
+                items: [
+                    { label: '累计提币人数', value: 18923 },
+                    { label: '累计提币金额', value: 154200000, isCurrency: true }
+                ]
+            },
+            // 4. 充值 (今日)
+            {
+                items: [
+                    { label: '今日充值人数', value: 120 },
+                    { label: '今日充值金额', value: 89520, isCurrency: true, highlight: true }
+                ]
+            },
+            // 5. 充值 (累计)
+            {
+                items: [
+                    { label: '累计充值人数', value: 42156 },
+                    { label: '累计充值金额', value: 320000000, isCurrency: true }
+                ]
+            },
+            // 6. 实名
+            {
+                items: [
+                    { label: '今日实名人数', value: 892, highlight: true },
+                    { label: '累计实名人数', value: 134521 }
+                ]
+            },
+            // 7. 理财包参与 (今日)
+            {
+                items: [
+                    { label: '今日理财包参与人数', value: 340 },
+                    { label: '今日理财包参与金额', value: 450000, isCurrency: true }
+                ]
+            },
+            // 8. 理财包参与 (累计)
+            {
+                items: [
+                    { label: '累计理财包参与人数', value: 12500 },
+                    { label: '累计理财包参与金额', value: 58000000, isCurrency: true }
+                ]
+            },
+            // 9. 盈亏 (同一列上下排列) - 移至最后
+            {
+                mode: 'vertical',
+                items: [
+                    { label: '今日盈亏金额', value: -12500, isCurrency: true, color: '#ef4444' },
+                    { label: '累计盈亏金额', value: 4500000, isCurrency: true, color: '#22c55e' }
+                ]
+            }
         ];
 
         // 时间轴数据（最近7天）
@@ -300,12 +468,54 @@
         // 渲染统计卡片
         function renderStats() {
             const grid = document.getElementById('statsGrid');
-            grid.innerHTML = statsData.map(item => `
-                <div class="stat-card ${item.highlight ? 'highlight' : ''}">
-                    <div class="label">${item.label}</div>
-                    <div class="value">${item.value.toLocaleString()}</div>
-                </div>
-            `).join('');
+            grid.innerHTML = statsData.map(group => {
+                // 如果是垂直排列模式
+                if (group.mode === 'vertical') {
+                    return `
+                    <div class="stat-card">
+                        ${group.items.map(item => `
+                            <div class="stat-row vertical">
+                                <div class="label">${item.label}</div>
+                                <div class="value" style="${item.color ? 'color:' + item.color : ''}">
+                                    ${formatNumber(item.value)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>`;
+                }
+
+                // 默认是一行两个（左右分布）
+                // 也可以是一行一个，取决于 items 长度。
+                // 这里我们假设 items 长度为 2 时左右分布。
+                if (group.items.length === 2) {
+                    return `
+                    <div class="stat-card">
+                        <div class="stat-group">
+                            ${group.items.map((item, idx) => `
+                                <div class="stat-item">
+                                    <div class="label">${item.label}</div>
+                                    <div class="value ${item.highlight ? 'highlight' : ''}" style="${item.color ? 'color:' + item.color : ''}">
+                                        ${formatNumber(item.value)}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                }
+
+                // Default fallback (single item or list)
+                return `
+                    <div class="stat-card">
+                        ${group.items.map(item => `
+                            <div class="stat-row">
+                                <div class="label">${item.label}</div>
+                                <div class="value ${item.highlight ? 'highlight' : ''}">
+                                    ${formatNumber(item.value)}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>`;
+            }).join('');
         }
 
         // 渲染当前参与金额饼图
@@ -631,7 +841,7 @@
         }
 
         // ==================== 初始化 ====================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             renderStats();
             renderCurrentTable();
             const charts = [renderCurrentPieChart(), renderPeopleChart(), renderAmountChart(), renderDualAxisChart(), renderSingleAxisChart()];
@@ -643,5 +853,5 @@
         });
     </script>
 </body>
-</html>
 
+</html>
