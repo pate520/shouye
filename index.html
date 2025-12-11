@@ -273,9 +273,15 @@
                 <div class="chart-container" id="currentPieChart"></div>
             </div>
             <div class="card card-half">
-                <div class="card-title">当前参与金额统计</div>
-                <table class="data-table" id="currentTable"></table>
+                <div class="card-title">用户国家分布</div>
+                <div class="chart-container" id="countryChart"></div>
             </div>
+        </div>
+
+        <!-- 当前参与金额统计表格 -->
+        <div class="card" style="margin-bottom:24px;">
+            <div class="card-title">当前参与金额统计</div>
+            <table class="data-table" id="currentTable"></table>
         </div>
 
         <!-- 图表1：人数对比 -->
@@ -412,6 +418,20 @@
             { name: '理财包B', value: 1980000 },
             { name: '理财包C', value: 1290000 },
             { name: '理财包D', value: 750000 }
+        ];
+
+        // 国家分布数据 (Top 10)
+        const countryData = [
+            { name: '美国', value: 350 },
+            { name: '新加坡', value: 280 },
+            { name: '英国', value: 240 },
+            { name: '日本', value: 210 },
+            { name: '韩国', value: 180 },
+            { name: '德国', value: 160 },
+            { name: '加拿大', value: 140 },
+            { name: '澳大利亚', value: 120 },
+            { name: '法国', value: 100 },
+            { name: '其他', value: 450 }
         ];
 
         // 4个理财包的人数数据
@@ -577,6 +597,37 @@
                     `).join('')}
                 </tbody>
             `;
+        }
+
+        // 渲染国家分布图（南丁格尔玫瑰图）
+        function renderCountryChart() {
+            const chart = echarts.init(document.getElementById('countryChart'));
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c} ({d}%)'
+                },
+                legend: {
+                    type: 'scroll',
+                    bottom: 0,
+                    data: countryData.map(d => d.name)
+                },
+                series: [
+                    {
+                        name: '国家分布',
+                        type: 'pie',
+                        radius: [20, 100],
+                        center: ['50%', '50%'],
+                        roseType: 'area',
+                        itemStyle: {
+                            borderRadius: 4
+                        },
+                        data: countryData
+                    }
+                ]
+            };
+            chart.setOption(option);
+            return chart;
         }
 
         // 图表1：人数趋势对比（4个理财包 × 新增+购买）
@@ -844,7 +895,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             renderStats();
             renderCurrentTable();
-            const charts = [renderCurrentPieChart(), renderPeopleChart(), renderAmountChart(), renderDualAxisChart(), renderSingleAxisChart()];
+            const charts = [renderCurrentPieChart(), renderCountryChart(), renderPeopleChart(), renderAmountChart(), renderDualAxisChart(), renderSingleAxisChart()];
 
             // 响应式
             window.addEventListener('resize', () => {
