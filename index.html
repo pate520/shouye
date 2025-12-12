@@ -251,6 +251,56 @@
             color: #fff;
             border-color: #4f6ef7;
         }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header .card-title {
+            margin-bottom: 0;
+        }
+
+        .card-header .tab-bar {
+            margin-bottom: 0;
+        }
+
+        /* 调整 Tab 按钮大小以适应头部 */
+        .card-header .tab-btn {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        /* 图表+表格 左右布局 */
+        .chart-with-table {
+            display: flex;
+            align-items: flex-start;
+            /* 顶部对齐 */
+            gap: 20px;
+        }
+
+        .chart-wrapper {
+            flex: 1;
+            height: 300px;
+        }
+
+        .table-wrapper {
+            flex: 1;
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        .data-table.small-table th {
+            padding: 8px 4px;
+            font-size: 12px;
+        }
+
+        .data-table.small-table td {
+            padding: 10px 4px;
+            font-size: 13px;
+        }
     </style>
 </head>
 
@@ -266,22 +316,30 @@
         <!-- 第二栏：理财包图表 -->
         <div class="section-title" style="margin-top:8px;">📦 理财包数据分析</div>
 
-        <!-- 当前参与金额：饼图 + 表格 -->
+        <!-- 当前参与金额：饼图 + 表格 (合并) -->
         <div class="row">
             <div class="card card-half">
                 <div class="card-title">当前参与金额分布</div>
-                <div class="chart-container" id="currentPieChart"></div>
+                <div class="chart-with-table">
+                    <div class="chart-wrapper" id="currentPieChart"></div>
+                    <div class="table-wrapper">
+                        <table class="data-table small-table" id="currentTable"></table>
+                    </div>
+                </div>
             </div>
             <div class="card card-half">
-                <div class="card-title">用户国家分布</div>
+                <div class="card-header">
+                    <div class="card-title">当前参与用户国家分布</div>
+                    <div class="tab-bar" id="countryTabs">
+                        <div class="tab-btn active" data-type="all">全部</div>
+                        <div class="tab-btn" data-type="A">理财包A</div>
+                        <div class="tab-btn" data-type="B">理财包B</div>
+                        <div class="tab-btn" data-type="C">理财包C</div>
+                        <div class="tab-btn" data-type="D">理财包D</div>
+                    </div>
+                </div>
                 <div class="chart-container" id="countryChart"></div>
             </div>
-        </div>
-
-        <!-- 当前参与金额统计表格 -->
-        <div class="card" style="margin-bottom:24px;">
-            <div class="card-title">当前参与金额统计</div>
-            <table class="data-table" id="currentTable"></table>
         </div>
 
         <!-- 图表1：人数对比 -->
@@ -420,19 +478,31 @@
             { name: '理财包D', value: 750000 }
         ];
 
-        // 国家分布数据 (Top 10)
-        const countryData = [
-            { name: '美国', value: 350 },
-            { name: '新加坡', value: 280 },
-            { name: '英国', value: 240 },
-            { name: '日本', value: 210 },
-            { name: '韩国', value: 180 },
-            { name: '德国', value: 160 },
-            { name: '加拿大', value: 140 },
-            { name: '澳大利亚', value: 120 },
-            { name: '法国', value: 100 },
-            { name: '其他', value: 450 }
-        ];
+        // 国家分布数据 (Top 10) - 支持筛选
+        const countryDataMap = {
+            'all': [
+                { name: '美国', value: 350 }, { name: '新加坡', value: 280 }, { name: '英国', value: 240 },
+                { name: '日本', value: 210 }, { name: '韩国', value: 180 }, { name: '德国', value: 160 },
+                { name: '加拿大', value: 140 }, { name: '澳大利亚', value: 120 }, { name: '法国', value: 100 },
+                { name: '其他', value: 450 }
+            ],
+            'A': [
+                { name: '美国', value: 150 }, { name: '新加坡', value: 100 }, { name: '英国', value: 90 },
+                { name: '韩国', value: 50 }, { name: '其他', value: 30 }
+            ],
+            'B': [
+                { name: '日本', value: 120 }, { name: '新加坡', value: 80 }, { name: '美国', value: 70 },
+                { name: '德国', value: 60 }, { name: '其他', value: 40 }
+            ],
+            'C': [
+                { name: '英国', value: 80 }, { name: '法国', value: 70 }, { name: '德国', value: 60 },
+                { name: '美国', value: 40 }, { name: '其他', value: 20 }
+            ],
+            'D': [
+                { name: '韩国', value: 90 }, { name: '日本', value: 50 }, { name: '加拿大', value: 40 },
+                { name: '澳大利亚', value: 30 }, { name: '其他', value: 10 }
+            ]
+        };
 
         // 4个理财包的人数数据
         const peopleData = {
@@ -547,17 +617,15 @@
                     trigger: 'item',
                     formatter: '{b}: {c}  ({d}%)'
                 },
+                // 隐藏 Legend，因为右侧有表格
                 legend: {
-                    orient: 'vertical',
-                    right: '5%',
-                    top: 'center',
-                    itemGap: 20
+                    show: false
                 },
                 color: colors,
                 series: [{
                     type: 'pie',
                     radius: ['45%', '70%'],
-                    center: ['35%', '50%'],
+                    center: ['50%', '40%'], // 向上调整，与右侧表格头部对齐
                     avoidLabelOverlap: false,
                     itemStyle: {
                         borderRadius: 8,
@@ -602,31 +670,48 @@
         // 渲染国家分布图（南丁格尔玫瑰图）
         function renderCountryChart() {
             const chart = echarts.init(document.getElementById('countryChart'));
-            const option = {
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{b}: {c} ({d}%)'
-                },
-                legend: {
-                    type: 'scroll',
-                    bottom: 0,
-                    data: countryData.map(d => d.name)
-                },
-                series: [
-                    {
-                        name: '国家分布',
-                        type: 'pie',
-                        radius: [20, 100],
-                        center: ['50%', '50%'],
-                        roseType: 'area',
-                        itemStyle: {
-                            borderRadius: 4
-                        },
-                        data: countryData
-                    }
-                ]
+
+            const updateChart = (type) => {
+                const data = countryDataMap[type] || countryDataMap['all'];
+                const option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}: {c} ({d}%)'
+                    },
+                    legend: {
+                        type: 'scroll',
+                        bottom: 0,
+                        data: data.map(d => d.name)
+                    },
+                    series: [
+                        {
+                            name: '国家分布',
+                            type: 'pie',
+                            radius: [20, 100],
+                            center: ['50%', '50%'],
+                            roseType: 'area',
+                            itemStyle: {
+                                borderRadius: 4
+                            },
+                            data: data
+                        }
+                    ]
+                };
+                chart.setOption(option, true); // true for not merging, replace data
             };
-            chart.setOption(option);
+
+            // 初始显示全部
+            updateChart('all');
+
+            // Tab切换事件
+            document.getElementById('countryTabs').addEventListener('click', e => {
+                if (e.target.classList.contains('tab-btn')) {
+                    document.querySelectorAll('#countryTabs .tab-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    updateChart(e.target.dataset.type);
+                }
+            });
+
             return chart;
         }
 
