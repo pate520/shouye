@@ -359,15 +359,10 @@
             <div class="chart-lg" id="amountChart"></div>
         </div>
 
-        <!-- 图表3：双Y轴 - 人数与入金 -->
-        <div class="card" style="margin-bottom:24px;">
-            <div class="card-title">新增人数 vs 新增入金（方案 A：双Y轴对比）</div>
-            <div class="chart-lg" id="dualAxisChart"></div>
-        </div>
 
         <!-- 图表4：单Y轴 - Tab切换理财包 -->
         <div class="card">
-            <div class="card-title">新增人数 vs 新增入金（方案 B：单Y轴 - 按理财包查看，金额单位：千元）</div>
+            <div class="card-title">新增人数 vs 新增入金（按理财包查看，金额单位：千 U）</div>
             <div class="tab-bar" id="singleAxisTabs">
                 <div class="tab-btn active" data-idx="0">理财包A</div>
                 <div class="tab-btn" data-idx="1">理财包B</div>
@@ -465,8 +460,14 @@
             }
         ];
 
-        // 时间轴数据（最近7天）
-        const days = ['11-24', '11-25', '11-26', '11-27', '11-28', '11-29', '11-30'];
+        // 时间轴数据（最近30天）
+        const days = [];
+        for (let i = 29; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            days.push((date.getMonth() + 1) + '-' + date.getDate());
+        }
+
         const products = ['理财包A', '理财包B', '理财包C', '理财包D'];
         const colors = ['#4f6ef7', '#22c55e', '#f59e0b', '#8b5cf6'];
 
@@ -504,52 +505,66 @@
             ]
         };
 
-        // 4个理财包的人数数据
+        // 数据生成辅助函数
+        function generateTrendData(startValue, count, volatility, trendPerStep) {
+            let current = startValue;
+            const data = [];
+            for (let i = 0; i < count; i++) {
+                // 波动 + 趋势
+                const change = (Math.random() - 0.5) * volatility + trendPerStep;
+                current += change;
+                if (current < 0) current = 0;
+                data.push(Math.round(current));
+            }
+            return data;
+        }
+
+        // 4个理财包的人数数据 (30天)
         const peopleData = {
             newUsers: [
-                [856, 923, 1045, 987, 1123, 1198, 1286],   // 理财包A
-                [623, 678, 712, 689, 756, 801, 834],       // 理财包B
-                [412, 445, 467, 423, 489, 512, 534],       // 理财包C
-                [234, 267, 289, 256, 312, 334, 356]        // 理财包D
+                generateTrendData(600, 30, 100, 20),  // A: 初始600, 波动100, 每日平均增20
+                generateTrendData(400, 30, 80, 15),   // B
+                generateTrendData(200, 30, 60, 10),   // C
+                generateTrendData(100, 30, 40, 8)     // D
             ],
             buyUsers: [
-                [234, 267, 312, 289, 345, 378, 412],       // 理财包A
-                [178, 195, 223, 201, 245, 267, 289],       // 理财包B
-                [123, 134, 156, 142, 167, 178, 189],       // 理财包C
-                [78, 89, 98, 87, 112, 123, 134]            // 理财包D
+                generateTrendData(150, 30, 50, 8),    // A
+                generateTrendData(100, 30, 40, 6),    // B
+                generateTrendData(80, 30, 30, 4),     // C
+                generateTrendData(40, 30, 20, 3)      // D
             ]
         };
 
-        // 4个理财包的入金数据（每日，千元）
+        // 4个理财包的入金数据（每日，千 U）(30天)
         const depositData = [
-            [125, 142, 158, 136, 167, 182, 195],   // 理财包A
-            [82, 91, 103, 88, 112, 124, 131],      // 理财包B
-            [56, 62, 71, 59, 78, 85, 92],          // 理财包C
-            [32, 38, 42, 35, 46, 51, 58]           // 理财包D
+            generateTrendData(80, 30, 30, 4),     // A
+            generateTrendData(50, 30, 20, 3),     // B
+            generateTrendData(30, 30, 15, 2),     // C
+            generateTrendData(20, 30, 10, 1)      // D
         ];
 
-        // 金额趋势数据（4个理财包 × 3个指标 × 7天）
+        // 金额趋势数据（4个理财包 × 3个指标 × 30天）
         const amountTrend = {
-            // 累计参与金额
+            // 累计参与金额 (持续增长)
             accumulated: [
-                [3980000, 4120000, 4250000, 4380000, 4450000, 4520000, 4680000],   // 理财包A
-                [2560000, 2640000, 2710000, 2780000, 2830000, 2890000, 2980000],   // 理财包B
-                [1380000, 1420000, 1470000, 1510000, 1540000, 1560000, 1620000],   // 理财包C
-                [860000, 890000, 920000, 950000, 970000, 980000, 1020000]          // 理财包D
+                generateTrendData(3000000, 30, 50000, 50000), // A
+                generateTrendData(1800000, 30, 30000, 30000), // B
+                generateTrendData(1000000, 30, 20000, 15000), // C
+                generateTrendData(500000, 30, 10000, 10000)   // D
             ],
-            // 累计收益金额
+            // 累计收益金额 (持续增长)
             profit: [
-                [380000, 400000, 410000, 430000, 440000, 450000, 470000],          // 理财包A
-                [190000, 200000, 210000, 220000, 220000, 230000, 240000],          // 理财包B
-                [60000, 65000, 70000, 72000, 75000, 78000, 82000],                 // 理财包C
-                [120000, 130000, 140000, 145000, 150000, 156000, 162000]           // 理财包D
+                generateTrendData(200000, 30, 5000, 8000),  // A
+                generateTrendData(100000, 30, 3000, 4000),  // B
+                generateTrendData(30000, 30, 1000, 1500),   // C
+                generateTrendData(80000, 30, 2000, 2500)    // D
             ],
-            // 已赎回金额
+            // 已赎回金额 (偶尔增长)
             redeemed: [
-                [1130000, 1200000, 1240000, 1300000, 1330000, 1340000, 1430000],   // 理财包A
-                [840000, 860000, 880000, 900000, 930000, 970000, 1000000],         // 理财包B
-                [300000, 300000, 290000, 300000, 310000, 310000, 330000],          // 理财包C
-                [240000, 240000, 240000, 250000, 260000, 260000, 270000]           // 理财包D
+                generateTrendData(800000, 30, 10000, 20000), // A
+                generateTrendData(600000, 30, 8000, 15000),  // B
+                generateTrendData(200000, 30, 5000, 5000),   // C
+                generateTrendData(150000, 30, 3000, 4000)    // D
             ]
         };
 
@@ -823,79 +838,8 @@
             return chart;
         }
 
-        // 图表3：双Y轴 - 新增人数 vs 新增入金
-        function renderDualAxisChart() {
-            const chart = echarts.init(document.getElementById('dualAxisChart'));
-            const option = {
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: { type: 'cross' },
-                    formatter: params => {
-                        let result = params[0].axisValue + '<br/>';
-                        params.forEach(p => {
-                            const unit = p.seriesName.includes('入金') ? '千元' : '人';
-                            result += `${p.marker} ${p.seriesName}: ${p.value}${unit}<br/>`;
-                        });
-                        return result;
-                    }
-                },
-                legend: {
-                    data: products.flatMap(p => [p + '-新增人数', p + '-新增入金(千元)']),
-                    top: 0,
-                    textStyle: { fontSize: 11 }
-                },
-                grid: { left: '3%', right: '5%', bottom: '3%', top: 55, containLabel: true },
-                xAxis: {
-                    type: 'category',
-                    data: days,
-                    axisLine: { lineStyle: { color: '#ddd' } },
-                    axisLabel: { color: '#666' }
-                },
-                yAxis: [
-                    {
-                        type: 'value',
-                        name: '人数',
-                        position: 'left',
-                        axisLine: { show: true, lineStyle: { color: '#4f6ef7' } },
-                        axisLabel: { color: '#666' },
-                        splitLine: { lineStyle: { color: '#f0f0f0' } }
-                    },
-                    {
-                        type: 'value',
-                        name: '入金(千元)',
-                        position: 'right',
-                        axisLine: { show: true, lineStyle: { color: '#22c55e' } },
-                        axisLabel: { color: '#666' },
-                        splitLine: { show: false }
-                    }
-                ],
-                series: [
-                    ...products.map((p, i) => ({
-                        name: p + '-新增人数',
-                        type: 'line',
-                        yAxisIndex: 0,
-                        smooth: true,
-                        symbol: 'circle',
-                        symbolSize: 6,
-                        lineStyle: { width: 2, color: colors[i] },
-                        itemStyle: { color: colors[i] },
-                        data: peopleData.newUsers[i]
-                    })),
-                    ...products.map((p, i) => ({
-                        name: p + '-新增入金(千元)',
-                        type: 'bar',
-                        yAxisIndex: 1,
-                        barWidth: '6%',
-                        itemStyle: { color: colors[i], opacity: 0.6 },
-                        data: depositData[i]
-                    }))
-                ]
-            };
-            chart.setOption(option);
-            return chart;
-        }
 
-        // 图表4：单Y轴 - Tab切换理财包（新增人数 + 新增入金千元）
+        // 图表4：单Y轴 - Tab切换理财包（新增人数 + 新增入金千 U）
         function renderSingleAxisChart() {
             const chart = echarts.init(document.getElementById('singleAxisChart'));
 
@@ -906,13 +850,13 @@
                         formatter: params => {
                             let result = params[0].axisValue + '<br/>';
                             params.forEach(p => {
-                                const unit = p.seriesName.includes('入金') ? '千元' : '人';
+                                const unit = p.seriesName.includes('入金') ? '千 U' : '人';
                                 result += `${p.marker} ${p.seriesName}: ${p.value}${unit}<br/>`;
                             });
                             return result;
                         }
                     },
-                    legend: { data: ['新增人数', '新增入金(千元)'], top: 0 },
+                    legend: { data: ['新增人数', '新增入金(千 U)'], top: 0 },
                     grid: { left: '3%', right: '4%', bottom: '3%', top: 45, containLabel: true },
                     xAxis: {
                         type: 'category',
@@ -942,7 +886,7 @@
                             data: peopleData.newUsers[idx]
                         },
                         {
-                            name: '新增入金(千元)',
+                            name: '新增入金(千 U)',
                             type: 'line',
                             smooth: true,
                             symbol: 'circle',
@@ -980,7 +924,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             renderStats();
             renderCurrentTable();
-            const charts = [renderCurrentPieChart(), renderCountryChart(), renderPeopleChart(), renderAmountChart(), renderDualAxisChart(), renderSingleAxisChart()];
+            const charts = [renderCurrentPieChart(), renderCountryChart(), renderPeopleChart(), renderAmountChart(), renderSingleAxisChart()];
 
             // 响应式
             window.addEventListener('resize', () => {
