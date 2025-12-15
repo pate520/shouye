@@ -362,7 +362,7 @@
 
         <!-- 图表4：单Y轴 - Tab切换理财包 -->
         <div class="card">
-            <div class="card-title">新增人数 vs 新增入金（按理财包查看，金额单位：千 U）</div>
+            <div class="card-title">新增人数 vs 新增参与金额（按理财包查看，金额单位：千 U）</div>
             <div class="tab-bar" id="singleAxisTabs">
                 <div class="tab-btn active" data-idx="0">理财包A</div>
                 <div class="tab-btn" data-idx="1">理财包B</div>
@@ -370,6 +370,187 @@
                 <div class="tab-btn" data-idx="3">理财包D</div>
             </div>
             <div class="chart-lg" id="singleAxisChart"></div>
+        </div>
+
+        <div class="card" style="margin-top: 24px;">
+            <div class="card-title">产品文档</div>
+            <div style="font-size: 14px; color: #555; line-height: 1.6;">
+                <!-- 模块：数据概览 -->
+                <div style="margin-bottom: 20px;">
+                    <div
+                        style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 12px; background: #f0f7ff; padding: 8px 12px; border-radius: 6px; display: inline-block;">
+                        模块一：数据概览
+                    </div>
+
+                    <div style="padding-left: 12px;">
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 8px;">1. 数据来源说明</div>
+                            <ul style="padding-left: 20px; list-style-type: disc; color: #666;">
+                                <li style="margin-bottom: 4px;">大部分数据字段后台已有。</li>
+                                <li style="margin-bottom: 4px;"><span
+                                        style="color: #1a1a1a; font-weight: 500;">新增字段：</span>今日理财包参与人数、累计理财包参与人数。</li>
+                                <li style="margin-bottom: 4px;"><span
+                                        style="color: #1a1a1a; font-weight: 500;">已有字段路径：</span>今日/累计理财包参与金额，可在「AI
+                                    量化跟单管理 -
+                                    理财包参与详情」中获取。</li>
+                            </ul>
+                        </div>
+
+                        <div style="padding-top: 16px; border-top: 1px dashed #eee;">
+                            <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 8px;">2. 新增字段统计口径</div>
+                            <ul style="padding-left: 20px; list-style-type: disc; color: #666;">
+                                <li style="margin-bottom: 8px;">
+                                    <span style="font-weight: 600; color: #444;">今日理财包参与人数 (UV)：</span>
+                                    按 UID 去重。只要今日发生过买入行为即算在内 (即使随后赎回)。
+                                </li>
+                                <li>
+                                    <span style="font-weight: 600; color: #444;">累计理财包参与人数 (历史流量)：</span>
+                                    包含历史上买过但目前已全部赎回的用户 (不仅仅是当前持仓用户)。
+                                </li>
+                            </ul>
+                        </div>
+                        <div style="padding-top: 16px; border-top: 1px dashed #eee;">
+                            <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 8px;">3. 数值单位说明</div>
+                            <ul style="padding-left: 20px; list-style-type: disc; color: #666;">
+                                <li style="margin-bottom: 4px;">
+                                    <span style="font-weight: 600; color: #444;">B (Billion, 十亿)：</span>
+                                    数值 &ge; 1,000,000,000 时使用。
+                                    <span style="color: #999;">例: 1,500,000,000 &rarr; 1.50B</span>
+                                </li>
+                                <li style="margin-bottom: 4px;">
+                                    <span style="font-weight: 600; color: #444;">M (Million, 百万)：</span>
+                                    数值 &ge; 1,000,000 时使用。
+                                    <span style="color: #999;">例: 1,200,000 &rarr; 1.20M</span>
+                                </li>
+                                <li style="margin-bottom: 4px;">
+                                    <span style="font-weight: 600; color: #444;">K (Thousand, 千)：</span>
+                                    数值 &ge; 1,000 时使用。
+                                    <span style="color: #999;">例: 1,500 &rarr; 1.50K</span>
+                                </li>
+                                <li>
+                                    <span style="font-weight: 600; color: #444;">无单位：</span>
+                                    数值 &lt; 1,000 时，直接显示数字。
+                                    <span style="color: #999;">例: 900 &rarr; 900</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 模块：理财包数据分析 -->
+                <div style="margin-bottom: 20px;">
+                    <div
+                        style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 12px; background: #f0f7ff; padding: 8px 12px; border-radius: 6px; display: inline-block;">
+                        模块二：理财包数据分析
+                    </div>
+
+                    <div style="padding-left: 12px;">
+                        <ul style="padding-left: 20px; list-style-type: disc; color: #666;">
+                            <li style="margin-bottom: 8px;">
+                                <span style="font-weight: 600; color: #444;">当前参与金额分布：</span>
+                                已有字段。可在「AI 量化跟单管理 - 理财包参与详情」中获取。
+                            </li>
+                            <li>
+                                <span style="font-weight: 600; color: #444;">当前参与用户国家分布：</span>
+                                统计所有<span style="color: #1a1a1a; font-weight: 500;">当前持仓用户</span>的注册地 IP。按 UID 去重。
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 模块：人数趋势对比 -->
+                <div style="margin-bottom: 20px;">
+                    <div
+                        style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 12px; background: #f0f7ff; padding: 8px 12px; border-radius: 6px; display: inline-block;">
+                        模块三：人数趋势对比
+                    </div>
+
+                    <div style="padding-left: 12px;">
+                        <ul style="padding-left: 20px; list-style-type: disc; color: #666;">
+                            <li style="margin-bottom: 8px;">
+                                <span style="font-weight: 600; color: #444;">新增 (New)：</span>
+                                即当日新增参与人数。统计逻辑同“模块一”的“今日理财包参与人数”。
+                                <br><span style="font-size: 13px; color: #999;">(口径：按 UID
+                                    去重，当日有买入行为即算，包含当日买入后赎回用户)</span>
+                            </li>
+                            <li>
+                                <span style="font-weight: 600; color: #444;">总计 (Total)：</span>
+                                即累计参与人数。统计逻辑同“模块一”的“累计理财包参与人数”。
+                                <br><span
+                                    style="font-size: 13px; color: #999;">(口径：历史流量口径，包含历史上买过但目前已全部赎回的用户，数据单调递增)</span>
+                            </li>
+                            <li style="margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px;">
+                                <span style="font-weight: 600; color: #444;">交互说明：</span>
+                                <ul style="padding-left: 20px; list-style-type: circle; margin-top: 4px;">
+                                    <li>横坐标：时间轴 (最近30天)</li>
+                                    <li>纵坐标：人数</li>
+                                    <li>图例交互：点击图例 (Legend) 可隐藏/显示对应线条</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 模块：金额趋势 -->
+                <div style="margin-bottom: 20px;">
+                    <div
+                        style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 12px; background: #f0f7ff; padding: 8px 12px; border-radius: 6px; display: inline-block;">
+                        模块四：金额趋势
+                    </div>
+
+                    <div style="padding-left: 12px;">
+                        <ul style="padding-left: 20px; list-style-type: disc; color: #666;">
+                            <li style="margin-bottom: 8px;">
+                                <span style="font-weight: 600; color: #444;">字段取值来源：</span>
+                                累计参与、累计收益、已赎回等字段数据，源自「AI 量化跟单管理 - 理财包参与详情」。
+                            </li>
+                            <li style="margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px;">
+                                <span style="font-weight: 600; color: #444;">交互说明：</span>
+                                <ul style="padding-left: 20px; list-style-type: circle; margin-top: 4px;">
+                                    <li>横坐标：时间轴 (最近30天)</li>
+                                    <li>纵坐标：金额 (数值)</li>
+                                    <li>顶部按钮：支持切换查看不同维度的金额趋势 (累计参与/累计收益/已赎回)</li>
+                                    <li>图例交互：点击图例 (Legend) 可隐藏/显示对应理财包线条</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- 模块：新增人数 vs 新增参与金额 -->
+                <div style="margin-bottom: 20px;">
+                    <div
+                        style="font-size: 15px; font-weight: bold; color: #333; margin-bottom: 12px; background: #f0f7ff; padding: 8px 12px; border-radius: 6px; display: inline-block;">
+                        模块五：新增人数 vs 新增参与金额
+                    </div>
+
+                    <div style="padding-left: 12px;">
+                        <ul style="padding-left: 20px; list-style-type: disc; color: #666;">
+                            <li style="margin-bottom: 8px;">
+                                <span style="font-weight: 600; color: #444;">数据一 (新增人数)：</span>
+                                统计逻辑同“模块三”的“新增 (New)”。
+                            </li>
+                            <li style="margin-bottom: 8px;">
+                                <span style="font-weight: 600; color: #444;">数据二 (新增参与金额)：</span>
+                                即当日新增参与金额。
+                                <br><span style="font-weight: 600; color: #444;">字段取值来源：</span>
+                                源自“AI 量化跟单管理 - 理财包参与详情”。
+                                <br><span style="font-size: 13px; color: #999;">(注意：模块四取的是累计数据，此处取的是当日数据。单位转换为“千
+                                    U”是为了适配与“人数”在同一坐标轴展示)</span>
+                            </li>
+                            <li style="margin-top: 8px; border-top: 1px dashed #eee; padding-top: 8px;">
+                                <span style="font-weight: 600; color: #444;">交互说明：</span>
+                                <ul style="padding-left: 20px; list-style-type: circle; margin-top: 4px;">
+                                    <li>横坐标：时间轴 (最近30天)</li>
+                                    <li>纵坐标：双数据展示 (人数 / 金额)</li>
+                                    <li>顶部按钮：支持切换查看不同理财包</li>
+                                    <li>图例交互：点击图例 (Legend) 可隐藏/显示对应数据</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
         </div>
     </div>
 
@@ -522,16 +703,16 @@
         // 4个理财包的人数数据 (30天)
         const peopleData = {
             newUsers: [
-                generateTrendData(600, 30, 100, 20),  // A: 初始600, 波动100, 每日平均增20
-                generateTrendData(400, 30, 80, 15),   // B
-                generateTrendData(200, 30, 60, 10),   // C
-                generateTrendData(100, 30, 40, 8)     // D
+                generateTrendData(50, 30, 20, 2),  // A: 初始50, 波动20, 每日平均增2
+                generateTrendData(30, 30, 15, 2),   // B
+                generateTrendData(20, 30, 10, 1),   // C
+                generateTrendData(10, 30, 5, 1)     // D
             ],
             buyUsers: [
-                generateTrendData(150, 30, 50, 8),    // A
-                generateTrendData(100, 30, 40, 6),    // B
-                generateTrendData(80, 30, 30, 4),     // C
-                generateTrendData(40, 30, 20, 3)      // D
+                generateTrendData(500, 30, 50, 10),    // A
+                generateTrendData(300, 30, 40, 8),    // B
+                generateTrendData(200, 30, 30, 6),     // C
+                generateTrendData(100, 30, 20, 4)      // D
             ]
         };
 
@@ -736,7 +917,7 @@
             const option = {
                 tooltip: { trigger: 'axis' },
                 legend: {
-                    data: products.flatMap(p => [p + '-新增', p + '-购买']),
+                    data: products.flatMap(p => [p + '-新增', p + '-总计']),
                     top: 0,
                     textStyle: { fontSize: 11 }
                 },
@@ -759,17 +940,17 @@
                         smooth: true,
                         symbol: 'circle',
                         symbolSize: 6,
-                        lineStyle: { width: 2, color: colors[i] },
+                        lineStyle: { width: 2, type: 'dashed', color: colors[i] },
                         itemStyle: { color: colors[i] },
                         data: peopleData.newUsers[i]
                     })),
                     ...products.map((p, i) => ({
-                        name: p + '-购买',
+                        name: p + '-总计',
                         type: 'line',
                         smooth: true,
                         symbol: 'diamond',
                         symbolSize: 6,
-                        lineStyle: { width: 2, type: 'dashed', color: colors[i] },
+                        lineStyle: { width: 2, color: colors[i] },
                         itemStyle: { color: colors[i] },
                         data: peopleData.buyUsers[i]
                     }))
@@ -850,13 +1031,13 @@
                         formatter: params => {
                             let result = params[0].axisValue + '<br/>';
                             params.forEach(p => {
-                                const unit = p.seriesName.includes('入金') ? '千 U' : '人';
+                                const unit = p.seriesName.includes('参与') ? '千 U' : '人';
                                 result += `${p.marker} ${p.seriesName}: ${p.value}${unit}<br/>`;
                             });
                             return result;
                         }
                     },
-                    legend: { data: ['新增人数', '新增入金(千 U)'], top: 0 },
+                    legend: { data: ['新增人数', '新增参与金额(千 U)'], top: 0 },
                     grid: { left: '3%', right: '4%', bottom: '3%', top: 45, containLabel: true },
                     xAxis: {
                         type: 'category',
@@ -886,7 +1067,7 @@
                             data: peopleData.newUsers[idx]
                         },
                         {
-                            name: '新增入金(千 U)',
+                            name: '新增参与金额(千 U)',
                             type: 'line',
                             smooth: true,
                             symbol: 'circle',
